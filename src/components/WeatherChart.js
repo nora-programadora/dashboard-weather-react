@@ -9,9 +9,11 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 import dayjs from "dayjs";
 
+// Register the Filler plugin
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -19,19 +21,21 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 const WeatherChart = ({ hourlyData }) => {
   const labels = hourlyData.map((hour) =>
     dayjs.unix(hour.dt).format("ddd h a")
   );
+
   const data = {
     labels: labels,
     datasets: [
       {
         label: "Degrees",
-        backgroundColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132)",
         borderColor: "rgb(255, 99, 132)",
         fill: true,
         data: hourlyData.map((hour) => hour.temp),

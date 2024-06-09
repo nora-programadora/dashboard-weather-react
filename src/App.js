@@ -1,36 +1,11 @@
-// import logo from './logo.svg';
-// import './App.css';
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
-// export default App;
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import dayjs from "dayjs";
 import Header from "./components/Header";
-import SearchForm from "./components/searchForm.js";
+import SearchForm from "./components/searchForm";
 import CurrentWeather from "./components/CurrentWeather";
 import Forecast from "./components/Forecast";
-import WeatherChart from "./components/WeatherChart.js";
+import WeatherChart from "./components/WeatherChart";
 
 const App = () => {
   const [city, setCity] = useState("");
@@ -40,7 +15,7 @@ const App = () => {
     const cities = localStorage.getItem("cities");
     if (cities) {
       const lastCity = JSON.parse(cities)[0];
-      fetchWeather(lastCity.name, lastCity.lat, lastCity.lng);
+      fetchWeather(lastCity.name, lastCity.lat, lastCity.lon);
     }
   }, []);
 
@@ -52,6 +27,7 @@ const App = () => {
       const response = await fetch(url);
       const data = await response.json();
       setWeatherData({ name, data });
+      saveToLocalStorage(name, lat, lon);
     } catch (error) {
       console.error("Error fetching weather data:", error);
     }
@@ -81,6 +57,23 @@ const App = () => {
     }
   };
 
+  const saveToLocalStorage = (name, lat, lon) => {
+    const cities = JSON.parse(localStorage.getItem("cities")) || [];
+    const updatedCities = [
+      { name, lat, lon },
+      ...cities.filter((city) => city.name !== name),
+    ];
+    localStorage.setItem("cities", JSON.stringify(updatedCities));
+  };
+
+  // Manejador de eventos de teclado para la accesibilidad
+  const handleKeyPress = (event, callback) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      callback();
+    }
+  };
+
   return (
     <div className="App">
       <Header />
@@ -91,8 +84,13 @@ const App = () => {
       />
       {weatherData && (
         <>
-          <CurrentWeather weatherData={weatherData} />
-          <WeatherChart hourlyData={weatherData.data.hourly} />
+          <section className="current-weather-container">
+            <h2>Today</h2>
+            <section className="current-weather">
+              <CurrentWeather weatherData={weatherData} />
+              <WeatherChart hourlyData={weatherData.data.hourly} />
+            </section>
+          </section>
           <Forecast dailyData={weatherData.data.daily} />
         </>
       )}

@@ -21,6 +21,7 @@ const SearchForm = ({ city, setCity, handleCitySearch }) => {
           placeholder="Enter a city!"
           value={city}
           onChange={(e) => setCity(e.target.value)}
+          aria-label="Search city"
         />
         <button type="submit" id="search-btn">
           Search

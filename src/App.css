@@ -198,7 +198,7 @@ main {
 }
 
 /* mobile styling */
-@media (max-width: 700px) {
+@media (max-width: 1000px) {
   .city-container {
     flex-direction: column;
   }
