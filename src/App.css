@@ -222,6 +222,38 @@ main {
   }
 }
 
+/* src/components/DateRangePicker.css */
+
+.date-range-picker {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid hsl(347deg 100% 69%);
+  border-radius: 5px;
+  /* background-color: #f9f9f9; */
+}
+
+.date-range-picker label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+}
+
+.date-range-picker input {
+  margin-top: 5px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.date-range-picker button {
+  display: flex;
+  margin-top: auto;
+  margin-bottom: 1px;
+}
+
 /*helper styles*/
 .hidden {
   display: none;

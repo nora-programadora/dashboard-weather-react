@@ -6,10 +6,14 @@ import SearchForm from "./components/searchForm";
 import CurrentWeather from "./components/CurrentWeather";
 import Forecast from "./components/Forecast";
 import WeatherChart from "./components/WeatherChart";
+import DateRangePicker from "./components/DateRangerPicker";
 
 const App = () => {
   const [city, setCity] = useState("");
   const [weatherData, setWeatherData] = useState(null);
+  const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   useEffect(() => {
     const cities = localStorage.getItem("cities");
@@ -66,12 +70,22 @@ const App = () => {
     localStorage.setItem("cities", JSON.stringify(updatedCities));
   };
 
-  // Manejador de eventos de teclado para la accesibilidad
-  const handleKeyPress = (event, callback) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      callback();
+  const filterDataByDateRange = (data) => {
+    if (!data || !Array.isArray(data.daily)) {
+      return [];
     }
+
+    if (!dateRange.startDate || !dateRange.endDate) {
+      return data.daily;
+    }
+
+    const start = dayjs(dateRange.startDate);
+    const end = dayjs(dateRange.endDate);
+
+    return data.daily.filter((day) => {
+      const date = dayjs.unix(day.dt);
+      return date.isAfter(start) && date.isBefore(end);
+    });
   };
 
   return (
@@ -91,7 +105,14 @@ const App = () => {
               <WeatherChart hourlyData={weatherData.data.hourly} />
             </section>
           </section>
-          <Forecast dailyData={weatherData.data.daily} />
+          <DateRangePicker
+            startDate={startDate}
+            endDate={endDate}
+            setStartDate={setStartDate}
+            setEndDate={setEndDate}
+            setDateRange={setDateRange}
+          />
+          <Forecast dailyData={filterDataByDateRange(weatherData.data)} />
         </>
       )}
     </div>
