@@ -30,13 +30,55 @@ const App = () => {
   const [filteredTemperatureData, setFilteredTemperatureData] = useState([]);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const cities = localStorage.getItem("cities");
-    if (cities) {
-      const lastCity = JSON.parse(cities)[0];
-      fetchWeather(lastCity.name, lastCity.lat, lastCity.lon);
+  const fetchWeatherByCoordinates = async (latitude, longitude) => {
+    const apiKey = "cf0f236d99f05f78766736970398dfe2";
+    const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=metric&exclude=minutely&appid=${apiKey}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Error fetching weather data. Please try again.");
+      }
+      const data = await response.json();
+      saveToLocalStorage(data.name, latitude, longitude);
+      return { name: data.name, data };
+    } catch (error) {
+      console.error("Error fetching weather data:", error);
+      throw new Error("Error fetching weather data. Please try again.");
     }
+  };
+
+  useEffect(() => {
+    const fetchWeatherByLocation = async () => {
+      try {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+            const response = await fetchWeatherByCoordinates(
+              latitude,
+              longitude
+            );
+            setWeatherData(response);
+          });
+        } else {
+          throw new Error("Geolocation not supported.");
+        }
+      } catch (error) {
+        console.error("Error fetching weather by location:", error);
+        setError("Error fetching weather data. Please try again.");
+      }
+    };
+
+    fetchWeatherByLocation();
   }, []);
+
+  // useEffect(() => {
+  //   const cities = localStorage.getItem("cities");
+  //   if (cities) {
+  //     const lastCity = JSON.parse(cities)[0];
+  //     fetchWeather(lastCity.name, lastCity.lat, lastCity.lon);
+  //   }
+  // }, []);
 
   const fetchWeather = async (name, lat, lon) => {
     const apiKey = "cf0f236d99f05f78766736970398dfe2";
@@ -80,12 +122,16 @@ const App = () => {
   };
 
   const saveToLocalStorage = (name, lat, lon) => {
-    const cities = JSON.parse(localStorage.getItem("cities")) || [];
-    const updatedCities = [
-      { name, lat, lon },
-      ...cities.filter((city) => city.name !== name),
-    ];
-    localStorage.setItem("cities", JSON.stringify(updatedCities));
+    if (name && lat && lon) {
+      const cities = JSON.parse(localStorage.getItem("cities")) || [];
+      const updatedCities = [
+        { name, lat, lon },
+        ...cities.filter((city) => city.name !== name),
+      ];
+      localStorage.setItem("cities", JSON.stringify(updatedCities));
+    } else {
+      console.error("Invalid data provided to saveToLocalStorage");
+    }
   };
 
   const filterDataByDateRange = (data) => {
