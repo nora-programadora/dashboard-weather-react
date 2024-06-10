@@ -196,6 +196,7 @@ main {
 .day-card {
   min-width: 10rem;
   padding: 1rem;
+  margin: auto;
   /* flex-grow: 1; */
 }
 
