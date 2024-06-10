@@ -1,13 +1,11 @@
-import React from "react";
-
-const SearchForm = ({ city, setCity, handleCitySearch }) => {
-  const handleSubmit = (e) => {
+const SearchForm = ({ city, setCity, handleCitySearch, error }) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const inputs = city.split(",");
     if (inputs.length === 1) {
-      handleCitySearch(city);
+      await handleCitySearch(city);
     } else {
-      handleCitySearch(inputs[0], inputs[1]);
+      await handleCitySearch(inputs[0], inputs[1]);
     }
   };
 
@@ -23,6 +21,7 @@ const SearchForm = ({ city, setCity, handleCitySearch }) => {
           onChange={(e) => setCity(e.target.value)}
           aria-label="Search city"
         />
+        {error && <p>{error}</p>}
         <button type="submit" id="search-btn">
           Search
         </button>

@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import Header from "./components/Header";
 import SearchForm from "./components/searchForm";
 import CurrentWeather from "./components/CurrentWeather";
 import Forecast from "./components/Forecast";
 import WeatherChart from "./components/WeatherChart";
 import DateRangePicker from "./components/DateRangerPicker";
+import TemperatureChart from "./components/TemperatureChart";
+import FilterForm from "./components/FilterForm";
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 const App = () => {
   const [city, setCity] = useState("");
@@ -14,6 +21,14 @@ const App = () => {
   const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [filters, setFilters] = useState({
+    startDate: null,
+    endDate: null,
+    minTemp: null,
+    maxTemp: null,
+  });
+  const [filteredTemperatureData, setFilteredTemperatureData] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const cities = localStorage.getItem("cities");
@@ -53,8 +68,11 @@ const App = () => {
         } = info;
         fetchWeather(name, lat, lon);
         setCity("");
+        setError(null);
       } else {
-        console.error("City not found");
+        setError(
+          "An error occurred while verifying the city. Please try again."
+        );
       }
     } catch (error) {
       console.error("Error fetching city data:", error);
@@ -88,6 +106,67 @@ const App = () => {
     });
   };
 
+  const formatTemperatureData = (data) => {
+    if (!data || !Array.isArray(data.daily)) {
+      return [];
+    }
+
+    return data.daily.map((day) => ({
+      date: dayjs.unix(day.dt).format("YYYY-MM-DD"),
+      maxTemp: day.temp.max,
+      minTemp: day.temp.min,
+    }));
+  };
+
+  const filterTemperatureData = (data, filters) => {
+    const { startDate, endDate, minTemp, maxTemp } = filters;
+    // console.log("Original Data:", data);
+    // console.log("Filters:", filters);
+
+    let filteredData = data;
+
+    if (startDate) {
+      const start = dayjs(startDate);
+      filteredData = filteredData.filter((day) => {
+        const date = dayjs(day.date);
+        return date.isSameOrAfter(start);
+      });
+    }
+
+    if (endDate) {
+      const end = dayjs(endDate);
+      filteredData = filteredData.filter((day) => {
+        const date = dayjs(day.date);
+        return date.isSameOrBefore(end);
+      });
+    }
+
+    if (minTemp !== null && minTemp !== "" && !isNaN(minTemp)) {
+      filteredData = filteredData.filter(
+        (day) => day.maxTemp >= parseFloat(minTemp)
+      );
+    }
+
+    if (maxTemp !== null && maxTemp !== "" && !isNaN(maxTemp)) {
+      filteredData = filteredData.filter(
+        (day) => day.minTemp <= parseFloat(maxTemp)
+      );
+    }
+
+    // console.log("Filtered Data:", filteredData);
+    return filteredData;
+  };
+
+  const applyFilters = () => {
+    if (weatherData) {
+      const formattedData = formatTemperatureData(weatherData.data);
+      // console.log("Formatted Data:", formattedData);
+      const filteredData = filterTemperatureData(formattedData, filters);
+      // console.log("Filtered Data After Applying Filters:", filteredData);
+      setFilteredTemperatureData(filteredData);
+    }
+  };
+
   return (
     <div className="App">
       <Header />
@@ -95,6 +174,7 @@ const App = () => {
         city={city}
         setCity={setCity}
         handleCitySearch={handleCitySearch}
+        error={error}
       />
       {weatherData && (
         <>
@@ -105,14 +185,26 @@ const App = () => {
               <WeatherChart hourlyData={weatherData.data.hourly} />
             </section>
           </section>
-          <DateRangePicker
-            startDate={startDate}
-            endDate={endDate}
-            setStartDate={setStartDate}
-            setEndDate={setEndDate}
-            setDateRange={setDateRange}
-          />
-          <Forecast dailyData={filterDataByDateRange(weatherData.data)} />
+          <section className="cards-container">
+            <h2>5 Day Forecast</h2>
+            <DateRangePicker
+              startDate={startDate}
+              endDate={endDate}
+              setStartDate={setStartDate}
+              setEndDate={setEndDate}
+              setDateRange={setDateRange}
+            />
+            <Forecast dailyData={filterDataByDateRange(weatherData.data)} />
+          </section>
+          <section className="chart-lines">
+            <h2>Daily Temperatures</h2>
+            <FilterForm
+              filters={filters}
+              setFilters={setFilters}
+              applyFilters={applyFilters}
+            />
+            <TemperatureChart data={filteredTemperatureData} />
+          </section>
         </>
       )}
     </div>

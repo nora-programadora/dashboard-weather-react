@@ -4,7 +4,6 @@ import dayjs from "dayjs";
 const Forecast = ({ dailyData }) => {
   return (
     <section className="forecast-container">
-      <h2>5 Day Forecast</h2>
       <section className="forecast">
         {dailyData.slice(1, 6).map((day, index) => (
           <article key={index} className="day-card card">

@@ -123,12 +123,29 @@ main {
   flex-wrap: wrap;
 }
 
+.city-container .error {
+  color: red;
+  margin-top: 10px;
+}
+
 /* Today weather section */
 .current-weather {
   display: flex;
   gap: 2rem;
   max-height: 25rem;
   min-width: 0;
+}
+
+.chart-lines {
+  box-sizing: border-box;
+  display: block;
+  height: auto;
+  margin: auto;
+  width: 80%;
+}
+
+.cards-container {
+  margin: 35px auto;
 }
 
 .today-card {
@@ -179,7 +196,7 @@ main {
 .day-card {
   min-width: 10rem;
   padding: 1rem;
-  flex-grow: 1;
+  /* flex-grow: 1; */
 }
 
 .day-card-title-container {
@@ -195,31 +212,6 @@ main {
 
 .day-pic-container {
   text-align: center;
-}
-
-/* mobile styling */
-@media (max-width: 1000px) {
-  .city-container {
-    flex-direction: column;
-  }
-
-  .recent-cities > button {
-    flex-basis: calc(49%);
-    padding: 0.5rem 0;
-  }
-
-  .current-weather {
-    flex-wrap: wrap;
-    max-height: none;
-  }
-
-  .today-card {
-    flex-basis: 100%;
-  }
-
-  .chart {
-    min-height: 20rem;
-  }
 }
 
 /* src/components/DateRangePicker.css */
@@ -262,4 +254,93 @@ main {
 .input-error {
   border: 0.2rem solid red;
   border-radius: 0.25rem;
+}
+
+/* Filter form */
+
+.filter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid hsl(347deg 100% 69%);
+  border-radius: 5px;
+  /* background-color: #f9f9f9; */
+}
+
+.filter-form .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.filter-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  flex: 1;
+}
+
+.filter-form input {
+  margin-top: 5px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.filter-form button {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: hsl(347deg 100% 69%);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  align-self: center;
+}
+
+.filter-form button:hover {
+  background-color: hsl(347deg 100% 59%);
+}
+
+/* mobile styling */
+@media (max-width: 1000px) {
+  .city-container {
+    flex-direction: column;
+  }
+
+  .recent-cities > button {
+    flex-basis: calc(49%);
+    padding: 0.5rem 0;
+  }
+
+  .current-weather {
+    flex-wrap: wrap;
+    max-height: none;
+  }
+
+  .today-card {
+    flex-basis: 50%;
+    margin: auto;
+  }
+
+  .day-card {
+    flex-grow: 1;
+  }
+
+  .chart {
+    min-height: 20rem;
+  }
+}
+
+@media (max-width: 650px) {
+  .today-card {
+    flex-basis: 80%;
+    margin: auto;
+  }
+
+  .filter-form input {
+    width: 80%;
+  }
 }
